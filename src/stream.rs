@@ -1,6 +1,3 @@
-extern crate anyhow;
-extern crate cpal;
-
 use std::sync::mpsc;
 use cpal::{
     traits::{DeviceTrait, HostTrait, StreamTrait},
@@ -8,6 +5,7 @@ use cpal::{
 };
 use cpal::{Sample, FromSample};
 use crate::oscillator::{Oscillator, Waveform};
+
 
 fn main() -> anyhow::Result<()> {
     let (tx, rx) = mpsc::channel();
@@ -64,16 +62,6 @@ pub fn make_stream<T>(
 where
     T: SizedSample + FromSample<f32>,
 {
-    // std::thread::spawn(move || {
-    //     loop {
-    //         let mut input = String::new();
-    //         std::io::stdin().read_line(&mut input).unwrap();
-    //         let tokens = input.trim().split(' ').collect();
-    //         println!("Got input = {}", tokens);
-    //         tx.send(tokens).unwrap();
-    //     }
-    // });
-
     let num_channels = config.channels as usize;
     let mut oscillator = Oscillator {
         waveform: Waveform::Sine,
@@ -83,12 +71,9 @@ where
     };
     let err_fn = |err| eprintln!("Error building output sound stream: {}", err);
 
-    let time_at_start = std::time::Instant::now();
-
     let stream = device.build_output_stream(
         config,
         move |output: &mut [T], _: &cpal::OutputCallbackInfo| {
-            // for 0-1s play sine, 1-2s play square, 2-3s play saw, 3-4s play triangle_wave
             match rx.try_recv() {
                 Ok(message) => {
                     oscillator.set_waveform( match message.first().unwrap().as_str() {
@@ -103,9 +88,6 @@ where
                 }
                 Err(mpsc::TryRecvError::Empty) => {}
             }
-            // oscillator.set_waveform(Waveform::Triangle);
-            // oscillator.set_waveform(Waveform::Square);
-            // oscillator.set_waveform(Waveform::Saw);
             process_frame(output, &mut oscillator, num_channels)
         },
         err_fn,
@@ -125,7 +107,6 @@ fn process_frame<SampleType>(
     for frame in output.chunks_mut(num_channels) {
         let value: SampleType = SampleType::from_sample(oscillator.tick());
 
-        // copy the same value to all channels
         for sample in frame.iter_mut() {
             *sample = value;
         }
