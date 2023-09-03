@@ -15,7 +15,6 @@ fn main() -> anyhow::Result<()> {
         let mut input = String::new();
         std::io::stdin().read_line(&mut input).unwrap();
         let tokens: Vec<String> = input.trim().split(' ').map(String::from).collect();
-        println!("Got input = {}", tokens.len());
         tx.send(tokens).unwrap();
     }
 }

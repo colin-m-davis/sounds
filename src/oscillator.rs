@@ -1,6 +1,3 @@
-use druid::Data;
-
-#[derive(Clone, PartialEq, Data)]
 pub enum Waveform {
     Sine,
     Square,
