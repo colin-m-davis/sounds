@@ -2,7 +2,6 @@ use std::fs::File;
 use std::io::Write;
 use byteorder::{WriteBytesExt, LittleEndian};
 use super::sound::Sound;
-use super::waveform::{SineWave, SawtoothWave};
 
 #[repr(C)]
 struct WAVHeader {
@@ -70,7 +69,6 @@ fn write_body(file: &mut File, num_samples: u32, sample_rate: u32, sounds: Vec<B
         for sound in &sounds {
             sample_f32 += sound.sample(time);
         }
-
         sample_f32 /= sounds.len() as f32;
         let sample_i16 = (sample_f32 * amplitude) as i16;
 
@@ -94,15 +92,20 @@ pub fn write_wav(filename: &str, sample_rate: u32, duration: f32, sounds: Vec<Bo
 
 #[cfg(test)]
 mod test {
+    use std::default;
+
     use super::*;
+    use crate::waveform::*;
 
     #[test]
-    fn main() -> std::io::Result<()> {
+    fn write() -> std::io::Result<()> {
         let sample_rate = 44100;
         let duration = 2.0; // seconds
         let frequencies: Vec<Box<dyn Sound>> = vec!(
-            Box::from(SineWave { frequency: 440.0, amplitude: 1.0 }),
-            Box::from(SawtoothWave { frequency: 540.0, amplitude: 1.0 })
+            Box::from(SineWave { frequency: 261.6, amplitude: 0.5 }),
+            Box::from(SineWave { frequency: 329.6, amplitude: 0.5 }),
+            Box::from(SineWave { frequency: 392.0, amplitude: 0.5 }),
+            // Box::from(SawtoothWave { frequency: 540.0, amplitude: 1.0 })
         );
         let path_str = "chord.wav";
 
