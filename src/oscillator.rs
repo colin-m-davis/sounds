@@ -24,7 +24,7 @@ impl Oscillator {
             Waveform::Triangle => self.triangle_wave(),
         };
    
-        for filter in &self.active_filters {
+        for filter in &mut self.active_filters {
             sound_sample = filter.apply(sound_sample);
         }
 

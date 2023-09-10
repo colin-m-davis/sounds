@@ -68,8 +68,9 @@ where
         waveform: Waveform::Sine,
         sample_rate: config.sample_rate.0 as f32,
         current_sample_index: 0.0,
-        frequency_hz: 440.0,
-        active_filters: vec![],
+        frequency_hz: 800.0,
+        active_filters: vec![Box::new(filter::HighPassFilter::new(0.99))],
+        // active_filters: vec![Box::new(filter::LowPassFilter::new(0.99))],
     };
     let err_fn = |err| eprintln!("Error building output sound stream: {}", err);
 
@@ -78,7 +79,7 @@ where
         move |output: &mut [T], _: &cpal::OutputCallbackInfo| {
             match rx.try_recv() {
                 Ok(message) => {
-                    oscillator.set_waveform( match message.first().unwrap().as_str() {
+                    oscillator.set_waveform(match message.first().unwrap().as_str() {
                         "sine" => Waveform::Sine,
                         "sawtooth" => Waveform::Saw,
                         _ => Waveform::Square,

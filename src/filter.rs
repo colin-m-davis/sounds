@@ -1,25 +1,43 @@
 pub trait Filter {
-    fn apply(&self, input: f32) -> f32;
+    fn apply(&mut self, input: f32) -> f32;
 }
 
 pub struct LowPassFilter {
-    // parameters
+    alpha: f32,
+    last_output: f32,
+}
+
+impl LowPassFilter {
+    pub fn new(alpha: f32) -> Self {
+        Self { alpha, last_output: 0.0 }
+    }
 }
 
 impl Filter for LowPassFilter {
-    fn apply(&self, input: f32) -> f32 {
-        // apply low-pass filtering
-        unimplemented!()
+    fn apply(&mut self, input: f32) -> f32 {
+        let output = (1.0 - self.alpha) * input + self.alpha * self.last_output;
+        self.last_output = output;
+        output
     }
 }
 
 pub struct HighPassFilter {
-    // parameters
+    alpha: f32,
+    last_output: f32,
+    last_input: f32,
+}
+
+impl HighPassFilter {
+    pub fn new(alpha: f32) -> Self {
+        Self { alpha, last_output: 0.0, last_input: 0.0 }
+    }
 }
 
 impl Filter for HighPassFilter {
-    fn apply(&self, input: f32) -> f32 {
-        // apply high-pass filtering
-        unimplemented!()
+    fn apply(&mut self, input: f32) -> f32 {
+        let output = self.alpha * (self.last_output + input - self.last_input);
+        self.last_output = output;
+        self.last_input = input;
+        output
     }
 }
