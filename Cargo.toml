@@ -7,3 +7,8 @@ edition = "2021"
 anyhow = "1.0.75"
 byteorder = "1.4"
 cpal = "0.15.2"
+
+[[bin]]
+edition = "2021"
+name = "pw"
+path = "src/stream.rs"

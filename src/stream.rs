@@ -1,3 +1,6 @@
+pub mod oscillator;
+pub mod filter;
+
 use std::sync::mpsc;
 use cpal::{
     traits::{DeviceTrait, HostTrait, StreamTrait},
@@ -5,7 +8,6 @@ use cpal::{
 };
 use cpal::{Sample, FromSample};
 use crate::oscillator::{Oscillator, Waveform};
-
 
 fn main() -> anyhow::Result<()> {
     let (tx, rx) = mpsc::channel();
@@ -67,6 +69,7 @@ where
         sample_rate: config.sample_rate.0 as f32,
         current_sample_index: 0.0,
         frequency_hz: 440.0,
+        active_filters: vec![],
     };
     let err_fn = |err| eprintln!("Error building output sound stream: {}", err);
 

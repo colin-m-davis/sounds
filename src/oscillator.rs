@@ -1,3 +1,5 @@
+use crate::filter::Filter;
+
 pub enum Waveform {
     Sine,
     Square,
@@ -10,16 +12,23 @@ pub struct Oscillator {
     pub waveform: Waveform,
     pub current_sample_index: f32,
     pub frequency_hz: f32,
+    pub active_filters: Vec<Box<dyn Filter + Send>>,
 }
 
 impl Oscillator {
     pub fn tick(&mut self) -> f32 {
-        match self.waveform {
+        let mut sound_sample = match self.waveform {
             Waveform::Sine => self.sine_wave(),
             Waveform::Square => self.square_wave(),
             Waveform::Saw => self.saw_wave(),
             Waveform::Triangle => self.triangle_wave(),
+        };
+   
+        for filter in &self.active_filters {
+            sound_sample = filter.apply(sound_sample);
         }
+
+        sound_sample
     }
 
     pub fn set_waveform(&mut self, waveform: Waveform) {
